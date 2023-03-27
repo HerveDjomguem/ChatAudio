@@ -10,7 +10,18 @@ function Profile() {
   const { user } = useSelector((state) => state.userReducer);
   const [image = "", setImage] = React.useState("");
   const dispatch = useDispatch();
+
+
+
   const onFileSelect = async (e) => {
+    const file = e.target.files[0];
+
+      console.log(file);
+      setImage(file);
+    
+  };
+    
+ /* const onFileSelect = async (e) => {
     const file = e.target.files[0];
     const reader = new FileReader(file);
     reader.readAsDataURL(file);
@@ -18,7 +29,7 @@ function Profile() {
       console.log(reader.result);
       setImage(reader.result);
     };
-  };
+  };*/
 
   useEffect(() => {
     if (user?.profilePic) {
@@ -29,12 +40,14 @@ function Profile() {
   const updateProfilePic = async () => {
     try {
       dispatch(ShowLoader());
+    
       const response = await UpdateProfilePicture(image);
       dispatch(HideLoader());
       if (response.success) {
         toast.success("Profile Pic Updated");
         dispatch(SetUser(response.data));
       } else {
+        console.log('update',image);
         toast.error(response.error);
       }
     } catch (error) {

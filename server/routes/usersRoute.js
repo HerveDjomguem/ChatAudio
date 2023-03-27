@@ -6,29 +6,6 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const multer = require('multer');
 const cloudinary = require("../cloudinary");
 
-const MIME_TYPE_MAP = {
-  'image/png': 'png',
-  'image/jpeg': 'jpg',
-  'image/jpg': 'jpg',
-};
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) =>{
-    const isValid =  MIME_TYPE_MAP[file.mimetype];
-    let error = new Error("Invalid mini type");
-    if(isValid){
-       error = null;
-    }
-    cb(error, "backend/files");
-  },
-   filename: (req,file,cb) =>{
-    const name = file.originalname.toLowerCase().split(' ').join('-');
-    const ext = MIME_TYPE_MAP[file.mimetype];
-    cb(null, name + '-' + Date.now()+ '.' + ext);
- }
-});
-
-
 // user registration
 
 router.post("/register", async (req, res) => {
@@ -140,24 +117,47 @@ router.get("/get-all-users", authMiddleware, async (req, res) => {
   }
 });
 
+const MIME_TYPE_MAP = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+};
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) =>{
+    const isValid =  MIME_TYPE_MAP[file.mimetype];
+    let error = new Error("Invalid mini type");
+    if(isValid){
+       error = null;
+    }
+    cb(error, "server/files");
+  },
+   filename: (req,file,cb) =>{
+    const name = file.originalname.toLowerCase().split(' ').join('-');
+    const ext = MIME_TYPE_MAP[file.mimetype];
+    cb(null, name + '-' + Date.now()+ '.' + ext);
+ }
+});
 // update user profile picture
 
-router.post("/update-profile-picture", authMiddleware, async (req, res) => {
-  /*try {
+router.post("/update-profile-picture", authMiddleware,multer({storage: storage}).single("image"), async (req, res) => {
+ 
+  const url = req.protocol + '://' + req.get("host");
+     const profilePic = url + "/files/"+req.file.filename;
+ try {
     const image = req.body.image;
 
-    console.log('image' ,req.body.image);
     // upload image to cloudinary and get url
 
     const uploadedImage = await cloudinary.uploader.upload(image, {
       folder: "ksr",
     });
-
+   
     // update user profile picture
 
     const user = await User.findOneAndUpdate(
       { _id: req.body.userId },
-      { profilePic: uploadedImage.secure_url },
+      { profilePic:profilePic },
       { new: true }
     );
 
@@ -167,40 +167,38 @@ router.post("/update-profile-picture", authMiddleware, async (req, res) => {
       data: user,
     });
   } catch (error) {
-    res.send({
-      message: error.message,
-      success: false,
-    });
-  } */
-  try {
-    const image = req.body.image;
-
-    console.log('image' ,req.body.image);
-    // upload image to cloudinary and get url
-
-    const uploadedImage = await cloudinary.uploader.upload(image, {
-      folder: "ksr",
-    });
-
-    // update user profile picture
-
-    const user = await User.findOneAndUpdate(
-      { _id: req.body.userId },
-      { profilePic: uploadedImage.secure_url },
-      { new: true }
-    );
-
-    res.send({
-      success: true,
-      message: "Profile picture updated successfully",
-      data: user,
-    });
-  } catch (error) {
+   
     res.send({
       message: error.message,
       success: false,
     });
   }
 });
+
+/*
+// A revoir probleme id
+router.put("/update-profile-picture", authMiddleware, multer({storage: storage}).single("image"),(req, res, next)=>{
+  let profilePic = req.body.profilePic;
+  if(req.file) {
+    const url = req.protocol + '://' + req.get("host");
+    profilePic = url + "/files/"+req.file.filename
+  }
+  const post =new User({
+    _id: req.body.id,
+    name: req.body.title,
+    email: req.body.email,
+    profilePic:profilePic,
+   // timestamps: req.body.timestamps
+  });
+  console.log(post);
+  User.updateOne({_id: req.params.id}, post).then(result =>{
+    console.log(result)
+    res.send({
+      success: true,
+      message: "Profile picture updated successfully",
+      data: post,
+    });
+  });
+}); */
 
 module.exports = router;

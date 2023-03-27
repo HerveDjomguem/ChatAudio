@@ -20,7 +20,7 @@ const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
   cors: {
     origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST","PUT"],
   },
 });
 
@@ -70,7 +70,7 @@ io.on("connection", (socket) => {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
-app.use("/files", express.static(path.join("backend/files")));
+app.use("/files", express.static(path.join("server/files")));
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

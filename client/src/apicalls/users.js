@@ -38,9 +38,12 @@ export const GetAllUsers = async () => {
 
 export const UpdateProfilePicture = async (image) => {
   try {
-    const response = await axiosInstance.post("/api/users/update-profile-picture", {
-      image,
+    console.log('1',image)
+    const formData = new FormData()
+    formData.append('image', image)
+    const response = await axiosInstance.put("/api/users/update-profile-picture", formData,{
     });
+    console.log('2',formData)
     return response.data;
   } catch (error) {
     return error.response.data;
