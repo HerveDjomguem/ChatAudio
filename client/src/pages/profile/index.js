@@ -50,7 +50,7 @@ function Profile() {
           <h1>{user.name}</h1>
           <h1>{user.email}</h1>
           <h1>
-            Created At:{" "}
+            Crée le:{" "}
             {moment(user.createdAt).format("MMMM Do YYYY, h:mm:ss a")}
           </h1>
           {image && (
@@ -63,7 +63,7 @@ function Profile() {
 
           <div className="flex gap-2">
             <label htmlFor="file-input" className="cursor-pointer">
-              Update Profile Pic
+             Mettre à jour la photo de profile
             </label>
             <input
               type="file"
@@ -72,7 +72,7 @@ function Profile() {
               id="file-input"
             />
             <button className="contained-btn" onClick={updateProfilePic}>
-              Update
+              Mettre à jour
             </button>
           </div>
         </div>

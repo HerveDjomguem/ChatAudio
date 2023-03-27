@@ -42,7 +42,7 @@ function Register() {
         <div className="flex gap-2">
           <i className="ri-message-3-line text-2xl text-primary"></i>
           <h1 className="text-2xl uppercase font-semibold text-primary">
-            Sheychat register{" "}
+            ChatAudio S'enregistrer{" "}
           </h1>
         </div>
         <hr />
@@ -50,19 +50,19 @@ function Register() {
           type="text"
           value={user.name}
           onChange={(e) => setUser({ ...user, name: e.target.value })}
-          placeholder="Enter your name"
+          placeholder="Entrer votre nom"
         />
         <input
           type="text"
           value={user.email}
           onChange={(e) => setUser({ ...user, email: e.target.value })}
-          placeholder="Enter your email"
+          placeholder="Entrer votre adresse mail"
         />
         <input
           type="password"
           value={user.password}
           onChange={(e) => setUser({ ...user, password: e.target.value })}
-          placeholder="Enter your password"
+          placeholder="Entrer votre mot de passe"
         />
 
         <button
@@ -73,11 +73,11 @@ function Register() {
           }
           onClick={register}
         >
-          Register
+          S'enregistrer
         </button>
 
         <Link to="/login" className="underline">
-          Already have an account? Login
+          Avez-vous déja un compte? Se connecter
         </Link>
       </div>
     </div>

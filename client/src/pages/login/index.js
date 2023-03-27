@@ -43,7 +43,7 @@ function Login() {
         <div className="flex gap-2">
           <i className="ri-message-3-line text-2xl text-primary"></i>
           <h1 className="text-2xl uppercase font-semibold text-primary">
-            Sheychat Login{" "}
+            ChatAudio se connecter{" "}
           </h1>
         </div>
         <hr />
@@ -67,11 +67,11 @@ function Login() {
           }
           onClick={login}
         >
-          LOGIN
+          Se connecter
         </button>
 
         <Link to="/register" className="underline">
-          Don't have an account? Register
+          N'avez-vous pas encore un compte? S'enregistrer
         </Link>
       </div>
     </div>
