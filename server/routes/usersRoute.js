@@ -3,7 +3,31 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middlewares/authMiddleware");
+const multer = require('multer');
 const cloudinary = require("../cloudinary");
+
+const MIME_TYPE_MAP = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+};
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) =>{
+    const isValid =  MIME_TYPE_MAP[file.mimetype];
+    let error = new Error("Invalid mini type");
+    if(isValid){
+       error = null;
+    }
+    cb(error, "backend/files");
+  },
+   filename: (req,file,cb) =>{
+    const name = file.originalname.toLowerCase().split(' ').join('-');
+    const ext = MIME_TYPE_MAP[file.mimetype];
+    cb(null, name + '-' + Date.now()+ '.' + ext);
+ }
+});
+
 
 // user registration
 
@@ -119,9 +143,39 @@ router.get("/get-all-users", authMiddleware, async (req, res) => {
 // update user profile picture
 
 router.post("/update-profile-picture", authMiddleware, async (req, res) => {
+  /*try {
+    const image = req.body.image;
+
+    console.log('image' ,req.body.image);
+    // upload image to cloudinary and get url
+
+    const uploadedImage = await cloudinary.uploader.upload(image, {
+      folder: "ksr",
+    });
+
+    // update user profile picture
+
+    const user = await User.findOneAndUpdate(
+      { _id: req.body.userId },
+      { profilePic: uploadedImage.secure_url },
+      { new: true }
+    );
+
+    res.send({
+      success: true,
+      message: "Profile picture updated successfully",
+      data: user,
+    });
+  } catch (error) {
+    res.send({
+      message: error.message,
+      success: false,
+    });
+  } */
   try {
     const image = req.body.image;
 
+    console.log('image' ,req.body.image);
     // upload image to cloudinary and get url
 
     const uploadedImage = await cloudinary.uploader.upload(image, {

@@ -263,7 +263,7 @@ function ChatArea({ socket }) {
           {isReceipentTyping && (
             <div className="pb-10">
               <h1 className="bg-blue-100 text-primary  p-2 rounded-xl w-max">
-                entrain d'écrit...
+                Entrain d'écrit...
               </h1>
             </div>
           )}
