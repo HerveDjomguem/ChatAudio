@@ -8,6 +8,8 @@ import moment from "moment";
 import { SetAllChats } from "../../../redux/userSlice";
 import store from "../../../redux/store";
 import EmojiPicker from "emoji-picker-react";
+import { axiosInstance } from "../../../apicalls/index";
+
 
 function ChatArea({ socket }) {
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
@@ -40,9 +42,35 @@ function ChatArea({ socket }) {
       });
 
       // send message to server to save in db
-      const response = await SendMessage(message);
+    
+       const SendMessage = async (message) => {
+        try {
+          let config = {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+              }
+            };
+            console.log('1',user);
+            const formData = new FormData()
+            // Attention le text sera toujours vide !!!
+            formData.append('chat', selectedChat._id);
+            formData.append('sender',  user._id);
+            formData.append('text', message.text);
+            formData.append('image', image);
+          const response = await axiosInstance.post(
+            "/api/messages/new-message",
+            formData,config
+          );
+          return response.data;
+        } catch (error) {
+          throw error;
+        }
+      };
       console.log('11',selectedChat);
       console.log('22',user);
+
+      const response = await SendMessage(message);
 
       if (response.success) {
         setNewMessage("");
@@ -181,12 +209,16 @@ function ChatArea({ socket }) {
   }, [messages, isReceipentTyping]);
 
   const onUploadImageClick = (e) => {
-    const file = e.target.files[0];
+   /* const file = e.target.files[0];
     const reader = new FileReader(file);
     reader.readAsDataURL(file);
     reader.onloadend = async () => {
       sendNewMessage(reader.result);
-    };
+    };*/
+    const file = e.target.files[0];
+
+    console.log(file);
+    sendNewMessage(file);
   };
 
   return (

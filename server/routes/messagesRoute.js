@@ -2,14 +2,44 @@ const router = require("express").Router();
 const Chat = require("../models/chatModel");
 const Message = require("../models/messageModel");
 const authMiddleware = require("../middlewares/authMiddleware");
+const multer = require('multer');
+
 
 // new message
+const MIME_TYPE_MAP = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+};
 
-router.post("/new-message", async (req, res) => {
+const storage = multer.diskStorage({
+  destination: (req, file, cb) =>{
+    const isValid =  MIME_TYPE_MAP[file.mimetype];
+    let error = new Error("Invalid mini type");
+    if(isValid){
+       error = null;
+    }
+    cb(error, "server/files");
+  },
+   filename: (req,file,cb) =>{
+    const name = file.originalname.toLowerCase().split(' ').join('-');
+    const ext = MIME_TYPE_MAP[file.mimetype];
+    cb(null, name + '-' + Date.now()+ '.' + ext);
+ }
+});
+
+router.post("/new-message", multer({storage: storage}).single("image"),async (req, res) => {
+  const url = req.protocol + '://' + req.get("host");
   try {
     // store message
-    const newMessage = new Message(req.body);
-    console.log('req.body', req.body)
+    const newMessage = new Message({
+      chat: req.body.chat,
+      sender: req.body.sender,
+      text: req.body.text,
+      image: url + "/files/"+req.file.filename
+    });
+
+    console.log('req.body',newMessage)
     const savedMessage = await newMessage.save();
 
     // update last message of chat
