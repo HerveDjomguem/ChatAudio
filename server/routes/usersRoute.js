@@ -139,7 +139,7 @@ const storage = multer.diskStorage({
  }
 });
 // update user profile picture
-
+/*
 router.post("/update-profile-picture", authMiddleware,multer({storage: storage}).single("image"), async (req, res) => {
  
   const url = req.protocol + '://' + req.get("host");
@@ -157,7 +157,7 @@ router.post("/update-profile-picture", authMiddleware,multer({storage: storage})
 
     const user = await User.findOneAndUpdate(
       { _id: req.body.userId },
-      { profilePic:profilePic },
+      { profilePic:uploadedImage },
       { new: true }
     );
 
@@ -173,11 +173,10 @@ router.post("/update-profile-picture", authMiddleware,multer({storage: storage})
       success: false,
     });
   }
-});
+});*/
 
-/*
 // A revoir probleme id
-router.put("/update-profile-picture", authMiddleware, multer({storage: storage}).single("image"),(req, res, next)=>{
+router.put("/update-profile-picture/:id", authMiddleware, multer({storage: storage}).single("image"),(req, res, next)=>{
   let profilePic = req.body.profilePic;
   if(req.file) {
     const url = req.protocol + '://' + req.get("host");
@@ -185,8 +184,9 @@ router.put("/update-profile-picture", authMiddleware, multer({storage: storage})
   }
   const post =new User({
     _id: req.body.id,
-    name: req.body.title,
+    name: req.body.name,
     email: req.body.email,
+    password: req.body.password,
     profilePic:profilePic,
    // timestamps: req.body.timestamps
   });
@@ -199,6 +199,6 @@ router.put("/update-profile-picture", authMiddleware, multer({storage: storage})
       data: post,
     });
   });
-}); */
+}); 
 
 module.exports = router;

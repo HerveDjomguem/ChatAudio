@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { HideLoader, ShowLoader } from "../../redux/loaderSlice";
 import { SetUser } from "../../redux/userSlice";
 import { UpdateProfilePicture } from "../../apicalls/users";
+import { axiosInstance } from "../../apicalls/index";
+
 
 function Profile() {
   const { user } = useSelector((state) => state.userReducer);
@@ -13,7 +15,7 @@ function Profile() {
 
 
 
-  const onFileSelect = async (e) => {
+  const onFileSelect =  (e) => {
     const file = e.target.files[0];
 
       console.log(file);
@@ -37,17 +39,42 @@ function Profile() {
     }
   }, [user]);
 
+  const UpdateProfilePicture = async (image) => {
+    let config = {
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+        }
+      };
+      console.log('1',image);
+      const formData = new FormData()
+      formData.append('id', user._id);
+      formData.append('name', user.name);
+      formData.append('email', user.email);
+      formData.append('password', user.password);
+      formData.append('image', image);
+    
+    try {
+      
+      const response = await axiosInstance.put(`/api/users/update-profile-picture/${user._id}`,formData,config)
+        console.log('object',response);
+        return response.data;
+    } catch (error) {
+      return error.response.data;
+    }
+  }
+
   const updateProfilePic = async () => {
     try {
       dispatch(ShowLoader());
     
-      const response = await UpdateProfilePicture(image);
+      const response =  UpdateProfilePicture(image);
+      console.log('update',response);
       dispatch(HideLoader());
       if (response.success) {
         toast.success("Profile Pic Updated");
         dispatch(SetUser(response.data));
       } else {
-        console.log('update',image);
         toast.error(response.error);
       }
     } catch (error) {
