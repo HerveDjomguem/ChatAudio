@@ -23,6 +23,7 @@ function ChatArea({ socket }) {
   );
 
   const sendNewMessage = async (image) => {
+   
     try {
       const message = {
         chat: selectedChat._id,
@@ -40,6 +41,8 @@ function ChatArea({ socket }) {
 
       // send message to server to save in db
       const response = await SendMessage(message);
+      console.log('11',selectedChat);
+      console.log('22',user);
 
       if (response.success) {
         setNewMessage("");
@@ -75,6 +78,7 @@ function ChatArea({ socket }) {
       const response = await ClearChatMessages(selectedChat._id);
 
       if (response.success) {
+        
         const updatedChats = allChats.map((chat) => {
           if (chat._id === selectedChat._id) {
             return response.data;
@@ -293,7 +297,7 @@ function ChatArea({ socket }) {
               style={{
                 display: "none",
               }}
-              accept="image/gif,image/jpeg,image/jpg,image/png"
+           //   accept="image/gif,image/jpeg,image/jpg,image/png"
               onChange={onUploadImageClick}
             />
           </label>

@@ -46,29 +46,25 @@ function Profile() {
           'Content-Type': 'multipart/form-data',
         }
       };
-      console.log('1',image);
+      console.log('1',user);
       const formData = new FormData()
       formData.append('id', user._id);
       formData.append('name', user.name);
       formData.append('email', user.email);
       formData.append('password', user.password);
       formData.append('image', image);
-    
-    try {
       
       const response = await axiosInstance.put(`/api/users/update-profile-picture/${user._id}`,formData,config)
         console.log('object',response);
         return response.data;
-    } catch (error) {
-      return error.response.data;
-    }
+
   }
 
   const updateProfilePic = async () => {
     try {
       dispatch(ShowLoader());
     
-      const response =  UpdateProfilePicture(image);
+      const response = await UpdateProfilePicture(image);
       console.log('update',response);
       dispatch(HideLoader());
       if (response.success) {

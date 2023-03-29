@@ -182,13 +182,13 @@ router.put("/update-profile-picture/:id", authMiddleware, multer({storage: stora
     const url = req.protocol + '://' + req.get("host");
     profilePic = url + "/files/"+req.file.filename
   }
-  const post =new User({
+  const post = new User({
     _id: req.body.id,
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    profilePic:profilePic,
-   // timestamps: req.body.timestamps
+    profilePic: profilePic,
+    // timestamps: req.body.timestamps
   });
   console.log(post);
   User.updateOne({_id: req.params.id}, post).then(result =>{
