@@ -45,7 +45,7 @@ function ChatArea({ socket }) {
     
        const SendMessage = async (message) => {
         try {
-          let config = {
+       /*   let config = {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'multipart/form-data',
@@ -57,10 +57,11 @@ function ChatArea({ socket }) {
             formData.append('chat', selectedChat._id);
             formData.append('sender',  user._id);
             formData.append('text', message.text);
-            formData.append('image', image);
+            formData.append('image', image);*/
           const response = await axiosInstance.post(
-            "/api/messages/new-message",
-            formData,config
+            "/api/messages/new-message", {
+              message}
+           // formData,config
           );
           return response.data;
         } catch (error) {
@@ -209,16 +210,16 @@ function ChatArea({ socket }) {
   }, [messages, isReceipentTyping]);
 
   const onUploadImageClick = (e) => {
-   /* const file = e.target.files[0];
+    const file = e.target.files[0];
     const reader = new FileReader(file);
     reader.readAsDataURL(file);
     reader.onloadend = async () => {
       sendNewMessage(reader.result);
-    };*/
-    const file = e.target.files[0];
+    };
+   /* const file = e.target.files[0];
 
     console.log(file);
-    sendNewMessage(file);
+    sendNewMessage(file);*/
   };
 
   return (
@@ -341,7 +342,7 @@ function ChatArea({ socket }) {
 
         <input
           type="text"
-          placeholder="Type a message"
+          placeholder="Ecrire un message ici..."
           className="w-[90%] border-0 h-full rounded-xl focus:border-none"
           value={newMessage}
           onChange={(e) => {
