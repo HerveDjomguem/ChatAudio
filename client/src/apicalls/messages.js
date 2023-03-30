@@ -1,6 +1,6 @@
 import { axiosInstance } from ".";
 
-export const SendMessage = async (message) => {
+/*export const SendMessage = async (message) => {
   try {
     const response = await axiosInstance.post(
       "/api/messages/new-message",
@@ -10,7 +10,7 @@ export const SendMessage = async (message) => {
   } catch (error) {
     throw error;
   }
-};
+};*/
 export const GetMessages = async (chatId) => {
   try {
     const response = await axiosInstance.get(

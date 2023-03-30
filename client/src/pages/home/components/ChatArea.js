@@ -8,6 +8,8 @@ import moment from "moment";
 import { SetAllChats } from "../../../redux/userSlice";
 import store from "../../../redux/store";
 import EmojiPicker from "emoji-picker-react";
+import { axiosInstance } from "../../../apicalls/index";
+
 
 function ChatArea({ socket }) {
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
@@ -23,6 +25,7 @@ function ChatArea({ socket }) {
   );
 
   const sendNewMessage = async (image) => {
+   
     try {
       const message = {
         chat: selectedChat._id,
@@ -39,6 +42,32 @@ function ChatArea({ socket }) {
       });
 
       // send message to server to save in db
+    
+       const SendMessage = async (message) => {
+        try {
+         let config = {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+              }
+            };
+            console.log('1',user);
+            const formData = new FormData()
+            // Attention le text sera toujours vide !!!
+            formData.append('chat', selectedChat._id);
+            formData.append('sender',  user._id);
+            formData.append('text', message.text);
+            formData.append('image', image);
+          const response = await axiosInstance.post(
+            "/api/messages/new-message", formData, config);
+          return response.data;
+        } catch (error) {
+          throw error;
+        }
+      };
+      console.log('11',selectedChat);
+      console.log('22',user);
+
       const response = await SendMessage(message);
 
       if (response.success) {
@@ -75,6 +104,7 @@ function ChatArea({ socket }) {
       const response = await ClearChatMessages(selectedChat._id);
 
       if (response.success) {
+        
         const updatedChats = allChats.map((chat) => {
           if (chat._id === selectedChat._id) {
             return response.data;
@@ -177,12 +207,16 @@ function ChatArea({ socket }) {
   }, [messages, isReceipentTyping]);
 
   const onUploadImageClick = (e) => {
-    const file = e.target.files[0];
+  /*  const file = e.target.files[0];
     const reader = new FileReader(file);
     reader.readAsDataURL(file);
     reader.onloadend = async () => {
       sendNewMessage(reader.result);
-    };
+    };*/
+    const file = e.target.files[0];
+
+    console.log(file);
+    sendNewMessage(file);
   };
 
   return (
@@ -263,7 +297,7 @@ function ChatArea({ socket }) {
           {isReceipentTyping && (
             <div className="pb-10">
               <h1 className="bg-blue-100 text-primary  p-2 rounded-xl w-max">
-                typing...
+                Entrain d'écrit...
               </h1>
             </div>
           )}
@@ -293,7 +327,7 @@ function ChatArea({ socket }) {
               style={{
                 display: "none",
               }}
-              accept="image/gif,image/jpeg,image/jpg,image/png"
+           //   accept="image/gif,image/jpeg,image/jpg,image/png"
               onChange={onUploadImageClick}
             />
           </label>
@@ -305,7 +339,7 @@ function ChatArea({ socket }) {
 
         <input
           type="text"
-          placeholder="Type a message"
+          placeholder="Ecrire un message ici..."
           className="w-[90%] border-0 h-full rounded-xl focus:border-none"
           value={newMessage}
           onChange={(e) => {
