@@ -9,20 +9,31 @@ import { SetAllChats } from "../../../redux/userSlice";
 import store from "../../../redux/store";
 import EmojiPicker from "emoji-picker-react";
 import { axiosInstance } from "../../../apicalls/index";
+import MicRecorder from 'mic-recorder-to-mp3';
+import { FaMicrophoneSlash } from "react-icons/fa";
+import { FaMicrophone } from "react-icons/fa";
+import "./ChatArea.css"
 
+
+
+const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
 function ChatArea({ socket }) {
+  
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const [isReceipentTyping, setIsReceipentTyping] = React.useState(false);
   const dispatch = useDispatch();
   const [newMessage, setNewMessage] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
   const { selectedChat, user, allChats } = useSelector(
     (state) => state.userReducer
   );
   const [messages = [], setMessages] = React.useState([]);
+ // const [voice = [], setVoice] = React.useState([]);
   const receipentUser = selectedChat.members.find(
     (mem) => mem._id !== user._id
   );
+  
 
   const sendNewMessage = async (image,file) => {
    
@@ -83,6 +94,39 @@ function ChatArea({ socket }) {
     }
   };
 
+  //voice
+  const  voice = {
+    isRecording: false,
+    blobURL: '',
+    isBlocked: false,
+  };
+
+ 
+  const start = () => {
+    if (voice.isBlocked) {
+      console.log('Permission Denied');
+    } else {
+      Mp3Recorder
+        .start()
+        .then(() => {
+     //  voice.isRecording = true
+       setIsLoading(current => !current);
+        }).catch((e) => console.error(e));
+    }
+  };
+
+  const stop = () => {
+    Mp3Recorder
+      .stop()
+      .getMp3()
+      .then(([buffer, blob]) => {
+        const blobURL = URL.createObjectURL(blob)
+      console.log('blob',blob)
+      sendNewMessage(blobURL,blob);
+        voice.blobURL = blobURL;
+        setIsLoading(current => !current);
+      }).catch((e) => console.log(e));
+  };
 
   
   const getMessages = async () => {
@@ -143,6 +187,18 @@ function ChatArea({ socket }) {
   };
 
   useEffect(() => {
+    navigator.getUserMedia({ audio: true },
+      () => {
+        console.log('Permission Granted');
+      //  this.setState({ isBlocked: false });
+        voice.isBlocked = false
+      },
+      () => {
+        console.log('Permission Denied');
+      //  this.setState({ isBlocked: true })
+        voice.isBlocked = true;
+      },
+    );
     getMessages();
     if (selectedChat?.lastMessage?.sender !== user._id) {
       clearUnreadMessages();
@@ -287,13 +343,13 @@ function ChatArea({ socket }) {
                 </div>
                 {isCurrentUserIsSender && message.read && (
                   <div className="p-2">
-                    {receipentUser.profilePic /*&& (
+                    {receipentUser.profilePic && (
                       <img
                         src={receipentUser.profilePic}
                         alt="profile pic"
                         className="w-4 h-4 rounded-full"
                       />
-                    )*/}
+                    )}
                     {!receipentUser.profilePic && (
                       <div className="bg-gray-400 rounded-full h-4 w-4 flex items-center justify-center relative">
                         <h1 className="uppercase text-sm font-semibold text-white">
@@ -342,7 +398,7 @@ function ChatArea({ socket }) {
            //   accept="image/gif,image/jpeg,image/jpg,image/png"
               onChange={onUploadImageClick}
             />
-          </label>
+          </label>  
           <i
             class="ri-emotion-line cursor-pointer text-xl"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -362,15 +418,27 @@ function ChatArea({ socket }) {
               sender: user._id,
             });
           }}
-        />
+        /> 
+        <div className="img ">
         <button
           className="bg-primary text-white py-1 px-5 rounded h-max"
           onClick={() => sendNewMessage("","")}
         >
+          
           <i className="ri-send-plane-2-line text-white"></i>
         </button>
+        </div>
+
+        <button 
+              onClick={() => {
+                isLoading ? stop(): start();
+              }}
+            >
+              {isLoading ? <FaMicrophone  size={28}  /> : <FaMicrophoneSlash  size={28} />}
+        </button>
       </div>
-    </div>
+     
+    </div> 
   );
 }
 
