@@ -24,7 +24,7 @@ function ChatArea({ socket }) {
     (mem) => mem._id !== user._id
   );
 
-  const sendNewMessage = async (image) => {
+  const sendNewMessage = async (image,file) => {
    
     try {
       const message = {
@@ -32,6 +32,12 @@ function ChatArea({ socket }) {
         sender: user._id,
         text: newMessage,
         image,
+      };
+      const messagefile = {
+        chat: selectedChat._id,
+        sender: user._id,
+        text: newMessage,
+        file,
       };
       // send message to server using socket
       socket.emit("send-message", {
@@ -43,7 +49,7 @@ function ChatArea({ socket }) {
 
       // send message to server to save in db
     
-       const SendMessage = async (message) => {
+       const SendMessage = async (messagefile) => {
         try {
          let config = {
             headers: {
@@ -51,12 +57,12 @@ function ChatArea({ socket }) {
                 'Content-Type': 'multipart/form-data',
               }
             };
-            console.log('1',message);
+            console.log('1',messagefile);
             const formData = new FormData()
-            formData.append('chat', message.chat);
-            formData.append('sender',message.sender);
-            formData.append('text', message.text);
-            formData.append('image', image);
+            formData.append('chat', messagefile.chat);
+            formData.append('sender',messagefile.sender);
+            formData.append('text', messagefile.text);
+            formData.append('image', file);
           const response = await axiosInstance.post(
             "/api/messages/new-message", formData, config);
           return response.data;
@@ -65,7 +71,7 @@ function ChatArea({ socket }) {
         }
       };
 
-      const response = await SendMessage(message);
+      const response = await SendMessage(messagefile);
       console.log('22',response);
       if (response.success) {
         setNewMessage("");
@@ -78,33 +84,7 @@ function ChatArea({ socket }) {
   };
 
 
-  const sendNewMessage2 = async (image) => {
-   
-    try {
-      const message = {
-        chat: selectedChat._id,
-        sender: user._id,
-        text: newMessage,
-        image,
-      };
-      // send message to server using socket
-      socket.emit("send-message", {
-        ...message,
-        members: selectedChat.members.map((mem) => mem._id),
-        createdAt: moment().format("DD-MM-YYYY hh:mm:ss"),
-        read: false,
-      });
-
-      // send message to server to save in db
-    
-        setNewMessage("");
- 
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message);
-    }
-  };
-
+  
   const getMessages = async () => {
     try {
       dispatch(ShowLoader());
@@ -235,13 +215,11 @@ function ChatArea({ socket }) {
     const file2 = e.target.files[0];
     const reader = new FileReader(file2);
     reader.readAsDataURL(file2);
-    reader.onloadend = async () => {
-      sendNewMessage2(reader.result);
-    };
     const file = e.target.files[0];
-
-    console.log(file);
-    sendNewMessage(file);
+    reader.onloadend = async () => {
+      sendNewMessage(reader.result,file);
+    };
+   
   };
 
   return (
@@ -378,7 +356,7 @@ function ChatArea({ socket }) {
         />
         <button
           className="bg-primary text-white py-1 px-5 rounded h-max"
-          onClick={() => sendNewMessage("")}
+          onClick={() => sendNewMessage("","")}
         >
           <i className="ri-send-plane-2-line text-white"></i>
         </button>
