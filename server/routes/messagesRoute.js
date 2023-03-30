@@ -7,9 +7,8 @@ const multer = require('multer');
 
 // new message
 const MIME_TYPE_MAP = {
-  'image/png': 'png',
-  'image/jpeg': 'jpg',
-  'image/jpg': 'jpg',
+  'audio/mpeg': 'mp3',
+ 
 };
 
 const storage = multer.diskStorage({

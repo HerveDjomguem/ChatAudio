@@ -213,12 +213,14 @@ function ChatArea({ socket }) {
 
   const onUploadImageClick = (e) => {
     const file2 = e.target.files[0];
-    const reader = new FileReader(file2);
-    reader.readAsDataURL(file2);
+   // const reader = new FileReader(file2);
+   //const v= reader.readAsDataURL(file2);
+   const url = URL.createObjectURL(file2);
+    console.log('fichier audio',url);
     const file = e.target.files[0];
-    reader.onloadend = async () => {
-      sendNewMessage(reader.result,file);
-    };
+  
+      sendNewMessage(url,file);
+    
    
   };
 
@@ -266,11 +268,18 @@ function ChatArea({ socket }) {
                     </h1>
                   )}
                   {message.image && (
-                    <img
+                    // eslint-disable-next-line jsx-a11y/img-redundant-alt
+                  /*  <img
                       src={message.image}
                       alt="message image"
                       className="w-24 h-24 rounded-xl"
-                    />
+                    />*/
+                      <>
+                     
+                      <audio controlsList="nodownload" controls>
+                      <source src={message.image} type="audio/mpeg" />
+                      </audio></>
+                    
                   )}
                   <h1 className="text-gray-500 text-sm">
                     {getDateInRegualarFormat(message.createdAt)}
@@ -278,13 +287,13 @@ function ChatArea({ socket }) {
                 </div>
                 {isCurrentUserIsSender && message.read && (
                   <div className="p-2">
-                    {receipentUser.profilePic && (
+                    {receipentUser.profilePic /*&& (
                       <img
                         src={receipentUser.profilePic}
                         alt="profile pic"
                         className="w-4 h-4 rounded-full"
                       />
-                    )}
+                    )*/}
                     {!receipentUser.profilePic && (
                       <div className="bg-gray-400 rounded-full h-4 w-4 flex items-center justify-center relative">
                         <h1 className="uppercase text-sm font-semibold text-white">
