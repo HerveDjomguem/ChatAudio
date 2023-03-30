@@ -1,6 +1,8 @@
 import { axiosInstance } from ".";
 
-/*export const SendMessage = async (message) => {
+/*
+  //Je lui ai deja defini sur messages.js
+export const SendMessage = async (message) => {
   try {
     const response = await axiosInstance.post(
       "/api/messages/new-message",

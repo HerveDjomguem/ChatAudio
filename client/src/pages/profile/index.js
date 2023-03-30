@@ -20,6 +20,7 @@ function Profile() {
 
       console.log(file);
       setImage(file);
+      
     
   };
     

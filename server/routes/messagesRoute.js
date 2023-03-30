@@ -32,13 +32,14 @@ router.post("/new-message", multer({storage: storage}).single("image"),async (re
   const url = req.protocol + '://' + req.get("host");
   try {
     // store message
-    const newMessage = new Message({
-      chat: req.body.chat,
-      sender: req.body.sender,
-      text: req.body.text,
-      image: url + "/files/"+req.file.filename
-    });
-
+    if(req.file){ 
+      const newMessage = new Message({
+        chat: req.body.chat,
+        sender: req.body.sender,
+        text: req.body.text,
+        image: url + "/files/"+req.file.filename,
+        // read: req.body.read
+       });
     console.log('req.body',newMessage)
     const savedMessage = await newMessage.save();
 
@@ -56,6 +57,33 @@ router.post("/new-message", multer({storage: storage}).single("image"),async (re
       message: "Message sent successfully",
       data: savedMessage,
     });
+      }else {
+        const newMessage = new Message({
+          chat: req.body.chat,
+          sender: req.body.sender,
+          text: req.body.text,
+          image: '',
+        //  read: req.body.read
+        });
+      console.log('req.body',newMessage)
+      const savedMessage = await newMessage.save();
+  
+      // update last message of chat
+      await Chat.findOneAndUpdate(
+        { _id: req.body.chat },
+        {
+          lastMessage: savedMessage._id,
+          $inc: { unreadMessages: 1 },
+        }
+      );
+  
+      res.send({
+        success: true,
+        message: "Message sent successfully",
+        data: savedMessage,
+      });
+      }
+   
   } catch (error) {
     res.send({
       success: false,
