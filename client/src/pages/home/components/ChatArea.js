@@ -120,10 +120,16 @@ function ChatArea({ socket }) {
       .stop()
       .getMp3()
       .then(([buffer, blob]) => {
-        const blobURL = URL.createObjectURL(blob)
-      console.log('blobURL',blob)
-      sendNewMessage(blobURL,blob);
-        voice.blobURL = blobURL;
+       //const blobURL = URL.createObjectURL(blob)
+        const reader = new FileReader(blob);
+        reader.readAsDataURL(blob);
+     
+      reader.onloadend = async () => {
+        console.log('blobURL',reader.result)
+        sendNewMessage(reader.result,blob);
+      };
+     
+        //voice.blobURL = blobURL;
         setIsLoading(current => !current);
       }).catch((e) => console.log(e));
   };
@@ -269,15 +275,10 @@ function ChatArea({ socket }) {
 
   const onUploadImageClick = (e) => {
     const file2 = e.target.files[0];
-   // const reader = new FileReader(file2);
-   //const v= reader.readAsDataURL(file2);
-   const url = URL.createObjectURL(file2);
-    console.log('fichier audio',url);
+    const url = URL.createObjectURL(file2);
+      console.log('fichier audio',url);
     const file = e.target.files[0];
-  
-      sendNewMessage(url,file);
-    
-   
+    sendNewMessage(url,file);
   };
 
   return (
