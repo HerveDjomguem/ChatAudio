@@ -5,12 +5,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { HideLoader, ShowLoader } from "../../redux/loaderSlice";
 import { SetUser } from "../../redux/userSlice";
 import { UpdateProfilePicture } from "../../apicalls/users";
+import { axiosInstance } from "../../apicalls/index";
+
 
 function Profile() {
   const { user } = useSelector((state) => state.userReducer);
   const [image = "", setImage] = React.useState("");
   const dispatch = useDispatch();
-  const onFileSelect = async (e) => {
+
+
+
+  const onFileSelect =  (e) => {
+    const file = e.target.files[0];
+
+      console.log(file);
+      setImage(file);
+      
+    
+  };
+    
+ /* const onFileSelect = async (e) => {
     const file = e.target.files[0];
     const reader = new FileReader(file);
     reader.readAsDataURL(file);
@@ -18,7 +32,7 @@ function Profile() {
       console.log(reader.result);
       setImage(reader.result);
     };
-  };
+  };*/
 
   useEffect(() => {
     if (user?.profilePic) {
@@ -26,10 +40,33 @@ function Profile() {
     }
   }, [user]);
 
+  const UpdateProfilePicture = async (image) => {
+    let config = {
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+        }
+      };
+      console.log('1',user);
+      const formData = new FormData()
+      formData.append('id', user._id);
+      formData.append('name', user.name);
+      formData.append('email', user.email);
+      formData.append('password', user.password);
+      formData.append('image', image);
+      
+      const response = await axiosInstance.put(`/api/users/update-profile-picture/${user._id}`,formData,config)
+        console.log('object',response);
+        return response.data;
+
+  }
+
   const updateProfilePic = async () => {
     try {
       dispatch(ShowLoader());
+    
       const response = await UpdateProfilePicture(image);
+      console.log('update',response);
       dispatch(HideLoader());
       if (response.success) {
         toast.success("Profile Pic Updated");
@@ -50,7 +87,7 @@ function Profile() {
           <h1>{user.name}</h1>
           <h1>{user.email}</h1>
           <h1>
-            Created At:{" "}
+            Crée le:{" "}
             {moment(user.createdAt).format("MMMM Do YYYY, h:mm:ss a")}
           </h1>
           {image && (
@@ -63,7 +100,7 @@ function Profile() {
 
           <div className="flex gap-2">
             <label htmlFor="file-input" className="cursor-pointer">
-              Update Profile Pic
+             Mettre à jour la photo de profile
             </label>
             <input
               type="file"
@@ -72,7 +109,7 @@ function Profile() {
               id="file-input"
             />
             <button className="contained-btn" onClick={updateProfilePic}>
-              Update
+              Mettre à jour
             </button>
           </div>
         </div>

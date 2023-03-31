@@ -8,27 +8,47 @@ import moment from "moment";
 import { SetAllChats } from "../../../redux/userSlice";
 import store from "../../../redux/store";
 import EmojiPicker from "emoji-picker-react";
+import { axiosInstance } from "../../../apicalls/index";
+import MicRecorder from 'mic-recorder-to-mp3';
+import { FaMicrophoneSlash } from "react-icons/fa";
+import { FaMicrophone } from "react-icons/fa";
+import "./ChatArea.css"
+
+
+
+const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
 function ChatArea({ socket }) {
+  
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const [isReceipentTyping, setIsReceipentTyping] = React.useState(false);
   const dispatch = useDispatch();
   const [newMessage, setNewMessage] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
   const { selectedChat, user, allChats } = useSelector(
     (state) => state.userReducer
   );
   const [messages = [], setMessages] = React.useState([]);
+ // const [voice = [], setVoice] = React.useState([]);
   const receipentUser = selectedChat.members.find(
     (mem) => mem._id !== user._id
   );
+  
 
-  const sendNewMessage = async (image) => {
+  const sendNewMessage = async (image,file) => {
+   
     try {
       const message = {
         chat: selectedChat._id,
         sender: user._id,
         text: newMessage,
         image,
+      };
+      const messagefile = {
+        chat: selectedChat._id,
+        sender: user._id,
+        text: newMessage,
+        file,
       };
       // send message to server using socket
       socket.emit("send-message", {
@@ -39,8 +59,31 @@ function ChatArea({ socket }) {
       });
 
       // send message to server to save in db
-      const response = await SendMessage(message);
+    
+       const SendMessage = async (messagefile) => {
+        try {
+         let config = {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+              }
+            };
+            console.log('1',messagefile);
+            const formData = new FormData()
+            formData.append('chat', messagefile.chat);
+            formData.append('sender',messagefile.sender);
+            formData.append('text', messagefile.text);
+            formData.append('image', file);
+          const response = await axiosInstance.post(
+            "/api/messages/new-message", formData, config);
+          return response.data;
+        } catch (error) {
+          throw error;
+        }
+      };
 
+      const response = await SendMessage(messagefile);
+      console.log('22',response);
       if (response.success) {
         setNewMessage("");
         setShowEmojiPicker(false);
@@ -51,6 +94,47 @@ function ChatArea({ socket }) {
     }
   };
 
+  //voice
+  const  voice = {
+    isRecording: false,
+    blobURL: '',
+    isBlocked: false,
+  };
+
+ 
+  const start = () => {
+    if (voice.isBlocked) {
+      console.log('Permission Denied');
+    } else {
+      Mp3Recorder
+        .start()
+        .then(() => {
+     //  voice.isRecording = true
+       setIsLoading(current => !current);
+        }).catch((e) => console.error(e));
+    }
+  };
+
+  const stop = () => {
+    Mp3Recorder
+      .stop()
+      .getMp3()
+      .then(([buffer, blob]) => {
+       //const blobURL = URL.createObjectURL(blob)
+        const reader = new FileReader(blob);
+        reader.readAsDataURL(blob);
+     
+      reader.onloadend = async () => {
+        console.log('blobURL',reader.result)
+        sendNewMessage(reader.result,blob);
+      };
+     
+        //voice.blobURL = blobURL;
+        setIsLoading(current => !current);
+      }).catch((e) => console.log(e));
+  };
+
+  
   const getMessages = async () => {
     try {
       dispatch(ShowLoader());
@@ -75,6 +159,7 @@ function ChatArea({ socket }) {
       const response = await ClearChatMessages(selectedChat._id);
 
       if (response.success) {
+        
         const updatedChats = allChats.map((chat) => {
           if (chat._id === selectedChat._id) {
             return response.data;
@@ -108,6 +193,18 @@ function ChatArea({ socket }) {
   };
 
   useEffect(() => {
+    navigator.getUserMedia({ audio: true },
+      () => {
+        console.log('Permission Granted');
+      //  this.setState({ isBlocked: false });
+        voice.isBlocked = false
+      },
+      () => {
+        console.log('Permission Denied');
+      //  this.setState({ isBlocked: true })
+        voice.isBlocked = true;
+      },
+    );
     getMessages();
     if (selectedChat?.lastMessage?.sender !== user._id) {
       clearUnreadMessages();
@@ -177,12 +274,11 @@ function ChatArea({ socket }) {
   }, [messages, isReceipentTyping]);
 
   const onUploadImageClick = (e) => {
+    const file2 = e.target.files[0];
+    const url = URL.createObjectURL(file2);
+      console.log('fichier audio',url);
     const file = e.target.files[0];
-    const reader = new FileReader(file);
-    reader.readAsDataURL(file);
-    reader.onloadend = async () => {
-      sendNewMessage(reader.result);
-    };
+    sendNewMessage(url,file);
   };
 
   return (
@@ -229,11 +325,18 @@ function ChatArea({ socket }) {
                     </h1>
                   )}
                   {message.image && (
-                    <img
+                    // eslint-disable-next-line jsx-a11y/img-redundant-alt
+                  /*  <img
                       src={message.image}
                       alt="message image"
                       className="w-24 h-24 rounded-xl"
-                    />
+                    />*/
+                      <>
+                     
+                      <audio controlsList="nodownload" controls>
+                      <source src={message.image} type="audio/mpeg" />
+                      </audio></>
+                    
                   )}
                   <h1 className="text-gray-500 text-sm">
                     {getDateInRegualarFormat(message.createdAt)}
@@ -263,7 +366,7 @@ function ChatArea({ socket }) {
           {isReceipentTyping && (
             <div className="pb-10">
               <h1 className="bg-blue-100 text-primary  p-2 rounded-xl w-max">
-                typing...
+                Entrain d'écrit...
               </h1>
             </div>
           )}
@@ -293,10 +396,10 @@ function ChatArea({ socket }) {
               style={{
                 display: "none",
               }}
-              accept="image/gif,image/jpeg,image/jpg,image/png"
+           //   accept="image/gif,image/jpeg,image/jpg,image/png"
               onChange={onUploadImageClick}
             />
-          </label>
+          </label>  
           <i
             class="ri-emotion-line cursor-pointer text-xl"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -305,7 +408,7 @@ function ChatArea({ socket }) {
 
         <input
           type="text"
-          placeholder="Type a message"
+          placeholder="Ecrire un message ici..."
           className="w-[90%] border-0 h-full rounded-xl focus:border-none"
           value={newMessage}
           onChange={(e) => {
@@ -316,15 +419,27 @@ function ChatArea({ socket }) {
               sender: user._id,
             });
           }}
-        />
+        /> 
+        <div className="img ">
         <button
           className="bg-primary text-white py-1 px-5 rounded h-max"
-          onClick={() => sendNewMessage("")}
+          onClick={() => sendNewMessage("","")}
         >
+          
           <i className="ri-send-plane-2-line text-white"></i>
         </button>
+        </div>
+
+        <button 
+              onClick={() => {
+                isLoading ? stop(): start();
+              }}
+            >
+              {isLoading ? <FaMicrophone  size={28}  /> : <FaMicrophoneSlash  size={28} />}
+        </button>
       </div>
-    </div>
+     
+    </div> 
   );
 }
 

@@ -5,7 +5,8 @@ import UserSearch from "./components/UserSearch";
 import UsersList from "./components/UsersList";
 import { io } from "socket.io-client";
 
-const socket = io('https://sheychat-udemy.onrender.com');
+//J'ai enlever ce qui était dans les parenthèse
+const socket = io();
 function Home() {
   const [searchKey, setSearchKey] = React.useState("");
   const { selectedChat, user } = useSelector((state) => state.userReducer);
@@ -49,7 +50,7 @@ function Home() {
             className="w-96 h-96"
           />
           <h1 className="text-2xl font-semibold text-gray-500">
-            Select a user to chat
+            Sélectionner un utilisateur
           </h1>
         </div>
       )}
