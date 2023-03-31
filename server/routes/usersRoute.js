@@ -138,44 +138,7 @@ const storage = multer.diskStorage({
     cb(null, name + '-' + Date.now()+ '.' + ext);
  }
 });
-// update user profile picture
-/*
-router.post("/update-profile-picture", authMiddleware,multer({storage: storage}).single("image"), async (req, res) => {
- 
-  const url = req.protocol + '://' + req.get("host");
-     const profilePic = url + "/files/"+req.file.filename;
- try {
-    const image = req.body.image;
 
-    // upload image to cloudinary and get url
-
-    const uploadedImage = await cloudinary.uploader.upload(image, {
-      folder: "ksr",
-    });
-   
-    // update user profile picture
-
-    const user = await User.findOneAndUpdate(
-      { _id: req.body.userId },
-      { profilePic:uploadedImage },
-      { new: true }
-    );
-
-    res.send({
-      success: true,
-      message: "Profile picture updated successfully",
-      data: user,
-    });
-  } catch (error) {
-   
-    res.send({
-      message: error.message,
-      success: false,
-    });
-  }
-});*/
-
-// A revoir probleme id
 router.put("/update-profile-picture/:id", authMiddleware, multer({storage: storage}).single("image"),(req, res, next)=>{
   let profilePic = req.body.profilePic;
   if(req.file) {
