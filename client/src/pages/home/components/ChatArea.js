@@ -121,7 +121,7 @@ function ChatArea({ socket }) {
       .getMp3()
       .then(([buffer, blob]) => {
         const blobURL = URL.createObjectURL(blob)
-      console.log('blob',blob)
+      console.log('blobURL',blob)
       sendNewMessage(blobURL,blob);
         voice.blobURL = blobURL;
         setIsLoading(current => !current);
