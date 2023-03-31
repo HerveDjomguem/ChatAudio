@@ -34,6 +34,7 @@ io.on("connection", (socket) => {
 
   // send message to clients (who are present in members array)
   socket.on("send-message", (message) => {
+    console.log('message',message)
     io.to(message.members[0])
       .to(message.members[1])
       .emit("receive-message", message);
