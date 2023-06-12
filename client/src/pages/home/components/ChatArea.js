@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { GetMessages, SendMessage } from "../../../apicalls/messages";
+import { GetMessages, SendMessage,DeleteMessages } from "../../../apicalls/messages";
 import { ClearChatMessages } from "../../../apicalls/chats";
 import { HideLoader, ShowLoader } from "../../../redux/loaderSlice";
 import toast from "react-hot-toast";
@@ -34,10 +34,12 @@ function ChatArea({ socket }) {
     (mem) => mem._id !== user._id
   );
   
+  
 
   const sendNewMessage = async (image,file) => {
    
     try {
+      console.log('juju',selectedChat)
       const message = {
         chat: selectedChat._id,
         sender: user._id,
@@ -57,6 +59,8 @@ function ChatArea({ socket }) {
         createdAt: Date.now(),
         read: false,
       });
+
+      
 
       // send message to server to save in db
     
@@ -84,6 +88,7 @@ function ChatArea({ socket }) {
 
       const response = await SendMessage(messagefile);
       console.log('22',response);
+    
       if (response.success) {
         setNewMessage("");
         setShowEmojiPicker(false);
@@ -93,6 +98,25 @@ function ChatArea({ socket }) {
       toast.error(error.message);
     }
   };
+
+
+  //Delete message
+  const delteMessage =  (messageId) => {
+    try {
+      dispatch(ShowLoader());
+      const response =  DeleteMessages(messageId);
+     // dispatch(HideLoader());
+      if (response.success) {
+        console.log('delte ligne 110',response.data)
+        console.log('message supprimé')
+      }
+    } catch (error) {
+    //  dispatch(HideLoader());
+      toast.error(error.message);
+    }
+
+  }
+
 
   //voice
   const  voice = {
@@ -141,6 +165,7 @@ function ChatArea({ socket }) {
       const response = await GetMessages(selectedChat._id);
       dispatch(HideLoader());
       if (response.success) {
+        console.log('message23',response.data)
         setMessages(response.data);
       }
     } catch (error) {
@@ -314,15 +339,19 @@ function ChatArea({ socket }) {
               <div className={`flex ${isCurrentUserIsSender && "justify-end"}`}>
                 <div className="flex flex-col gap-1">
                   {message.text && (
-                    <h1
-                      className={`${
-                        isCurrentUserIsSender
+                    <><h1
+                      className={`${isCurrentUserIsSender
                           ? "bg-primary text-white rounded-bl-none"
-                          : "bg-gray-300 text-primary rounded-tr-none"
-                      } p-2 rounded-xl`}
+                          : "bg-gray-300 text-primary rounded-tr-none"} p-2 rounded-xl`}
                     >
                       {message.text}
                     </h1>
+                    <button
+                      className="bg-primary text-white py-1 px-5 rounded h-max"
+                      onClick={() => delteMessage(message._id)}
+                    >
+                      </button>
+                    </>
                   )}
                   {message.image && (
                     // eslint-disable-next-line jsx-a11y/img-redundant-alt

@@ -113,4 +113,12 @@ router.get("/get-all-messages/:chatId", async (req, res) => {
   }
 });
 
+router.delete("/:id", (req, res, next) => {
+  Message.deleteOne({ _id: req.params.id })
+  .then(result => {
+     console.log('633',result);
+     res.status(200).json({message: "Post deleted!"});
+  });
+});
+
 module.exports = router;
