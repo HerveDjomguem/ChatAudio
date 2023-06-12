@@ -54,7 +54,7 @@ function ChatArea({ socket }) {
       socket.emit("send-message", {
         ...message,
         members: selectedChat.members.map((mem) => mem._id),
-        createdAt: moment().format("DD-MM-YYYY hh:mm:ss"),
+        createdAt: Date.now(),
         read: false,
       });
 

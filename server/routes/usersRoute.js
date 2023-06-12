@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middlewares/authMiddleware");
 const multer = require('multer');
-const cloudinary = require("../cloudinary");
+//const cloudinary = require("../cloudinary");
 
 // user registration
 
