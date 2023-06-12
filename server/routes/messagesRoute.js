@@ -117,7 +117,11 @@ router.delete("/:id", (req, res, next) => {
   Message.deleteOne({ _id: req.params.id })
   .then(result => {
      console.log('633',result);
-     res.status(200).json({message: "Post deleted!"});
+    // res.status(200).json({message: "Post deleted!"});
+     res.send({
+      success: true,
+      message: "Message deleted",
+    });
   });
 });
 

@@ -24,11 +24,12 @@ export const GetMessages = async (chatId) => {
   }
 };
 
-export const DeleteMessages = async (messageId) => {
+export const DeleteMessages  = async (messageId) => {
   try {
-    const response = await axiosInstance.delete(
+    const response = await  axiosInstance.delete(
       `/api/messages/${messageId}`
     );
+    console.log('delete',response.data)
     return response.data;
   } catch (error) {
     throw error;

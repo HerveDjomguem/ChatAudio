@@ -12,6 +12,7 @@ import { axiosInstance } from "../../../apicalls/index";
 import MicRecorder from 'mic-recorder-to-mp3';
 import { FaMicrophoneSlash } from "react-icons/fa";
 import { FaMicrophone } from "react-icons/fa";
+import { FaBeer } from "react-icons/fa";
 import "./ChatArea.css"
 
 
@@ -101,14 +102,21 @@ function ChatArea({ socket }) {
 
 
   //Delete message
-  const delteMessage =  (messageId) => {
+  const delteMessage = async (messageId) => {
     try {
-      dispatch(ShowLoader());
-      const response =  DeleteMessages(messageId);
-     // dispatch(HideLoader());
-      if (response.success) {
-        console.log('delte ligne 110',response.data)
-        console.log('message supprimé')
+     // dispatch(ShowLoader());
+     console.log(messageId);
+      const response = await  DeleteMessages(messageId);
+      dispatch(HideLoader());
+      if (response.success) { 
+        console.log('message supprimé');
+        // eslint-disable-next-line no-restricted-globals
+        var confimation = confirm("Etes-vous sur de vouloir supprimer ?")
+       if(confimation){
+        toast.success(response.message);
+        getMessages();
+       }
+       
       }
     } catch (error) {
     //  dispatch(HideLoader());
@@ -346,25 +354,23 @@ function ChatArea({ socket }) {
                     >
                       {message.text}
                     </h1>
-                    <button
-                      className="bg-primary text-white py-1 px-5 rounded h-max"
-                      onClick={() => delteMessage(message._id)}
+                    <button        
                     >
+                     
+                      <FaBeer  size={28}  onClick={() => delteMessage(message._id)} /> 
                       </button>
+                    
                     </>
                   )}
                   {message.image && (
-                    // eslint-disable-next-line jsx-a11y/img-redundant-alt
-                  /*  <img
-                      src={message.image}
-                      alt="message image"
-                      className="w-24 h-24 rounded-xl"
-                    />*/
                       <>
-                     
                       <audio controlsList="nodownload" controls>
                       <source src={message.image} type="audio/mpeg" />
-                      </audio></>
+                      </audio> 
+                      <button
+                    >
+                     <FaBeer  size={28}  onClick={() => delteMessage(message._id)} /> 
+                      </button></>
                     
                   )}
                   <h1 className="text-gray-500 text-sm">
