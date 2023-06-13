@@ -112,7 +112,7 @@ function ChatArea({ socket }) {
         console.log('message supprimé');
         // eslint-disable-next-line no-restricted-globals
         var confimation = confirm("Etes-vous sur de vouloir supprimer ?")
-       if(confimation){
+       if(confimation){ 
         toast.success(response.message);
         getMessages();
        }
