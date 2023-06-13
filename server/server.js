@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const path =require("path");
 const dbConfig = require("./config/dbConfig");
 const port = process.env.PORT || 5000;
- 
+
 const usersRoute = require("./routes/usersRoute");
 const chatsRoute = require("./routes/chatsRoute");
 const messagesRoute = require("./routes/messagesRoute");

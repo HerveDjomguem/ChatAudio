@@ -226,7 +226,7 @@ function ChatArea({ socket }) {
   };
 
   useEffect(() => {
-    navigator.getUserMedia({ audio: true },
+   /* navigator.getUserMedia({ audio: true },
       () => {
         console.log('Permission Granted');
       //  this.setState({ isBlocked: false });
@@ -237,7 +237,7 @@ function ChatArea({ socket }) {
       //  this.setState({ isBlocked: true })
         voice.isBlocked = true;
       },
-    );
+    );*/
     getMessages();
     if (selectedChat?.lastMessage?.sender !== user._id) {
       clearUnreadMessages();
